@@ -21,13 +21,20 @@ namespace ResourceLogger
     {
         string _processName { get; set; }
         string _logPath { get; set; }
+
         int _logInt { get; set; }
         int _logCounter { get; set; }
         int _checkInt { get; set; }
+
+        double _lastValue { get; set; }
+
         PerformanceCounter _counter { get; set; }
         CancellationTokenSource _token { get; set; }
+
         List<string> _entries { get; set; }
         object _entriesLock { get; set; }
+
+        bool _checking { get; set; }
 
 
         public MainWindow()
@@ -36,7 +43,6 @@ namespace ResourceLogger
 
             ProcessesRefreshButton.Click += ProcessesRefreshButton_Click;
             LogPathBrowseButton.Click += LogPathBrowseButton_Click;
-
 
             RefreshProcesses();
         }
@@ -50,7 +56,7 @@ namespace ResourceLogger
 
         private void ProcessesRefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            var procs = Process.GetProcesses().ToList();
+            var procs = Process.GetProcesses().OrderBy(x => x.ProcessName).ToList();
 
             ProcessesComboBox.Items.Clear();
             procs.ForEach(x =>
@@ -79,7 +85,7 @@ namespace ResourceLogger
             return _processName = ProcessesComboBox.Text;
         }
 
-        private void StartButton_Click(object sender, RoutedEventArgs e)
+        private void StartChecking(object sender, RoutedEventArgs e)
         {
             _processName = ProcessesComboBox.Text;
             _logInt = Convert.ToInt32(LogEveryTextBox.Text);
@@ -90,12 +96,25 @@ namespace ResourceLogger
             _entries = new List<string>();
 
             Task.Run(() => CheckTask(_token));
+
+            ProcessNameLabel.Content = $"Process: {_processName}";
+            ProcessStartedLabel.Content = $"Started {DateTime.Now.ToString()}";
+            LastResultLabel.Content = $"Last Result: {DateTime.Now.ToString()} | Starting...";
+            TabController.SelectedItem = ProcessTab;
+        }
+
+        private void StopChecking()
+        {
+            _token.Cancel();
+            _checking = false;
         }
 
         private async Task CheckTask(CancellationTokenSource token)
         {
             try
             {
+                _checking = true;
+
                 _counter = new PerformanceCounter("Process", "% Processor Time", _processName);
                 _counter.NextValue();
 
@@ -129,6 +148,10 @@ namespace ResourceLogger
             {
                 await WriteResults();
             }
+
+            _lastValue = value;
+
+            Task.Run(UpdateLastResult);
         }
 
         private async Task AddException(Exception ex)
@@ -152,9 +175,22 @@ namespace ResourceLogger
             }
         }
 
-        void ShowException(Exception ex)
+        private void ShowException(Exception ex)
         {
             MessageBox.Show($"Exception Occurred: {ex.Message}");
+        }
+
+        private async Task InvokeOnUI(Action action)
+        {
+            Application.Current.Dispatcher.Invoke(action);
+        }
+
+        private async Task UpdateLastResult()
+        {
+            await InvokeOnUI(() =>
+            {
+                LastResultLabel.Content = $"{DateTime.Now.ToString()} | {_lastValue}%";
+            });
         }
     }
 }
