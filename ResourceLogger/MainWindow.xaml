@@ -5,8 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ResourceLogger"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="270" Width="587.778">
     <Grid>
-        
+        <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Left" Margin="421,153,0,0" VerticalAlignment="Top" Width="128" Height="49" Click="StartButton_Click"/>
+        <ComboBox x:Name="ProcessesComboBox" HorizontalAlignment="Left" Margin="76,40,0,0" VerticalAlignment="Top" Width="340"/>
+        <Button x:Name="ProcessesRefreshButton" Content="Refresh" HorizontalAlignment="Left" Margin="421,40,0,0" VerticalAlignment="Top" Width="75" Height="22" Click="ProcessesRefreshButton_Click"/>
+        <TextBox x:Name="LogPathTextBox" HorizontalAlignment="Left" Height="23" Margin="76,83,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="340"/>
+        <Button x:Name="LogPathBrowseButton" Content="Browse" HorizontalAlignment="Left" Margin="421,82,0,0" VerticalAlignment="Top" Width="75" Height="24"/>
+        <Label Content="Check Every" HorizontalAlignment="Left" Margin="63,134,0,0" VerticalAlignment="Top"/>
+        <Label Content="Log Every" HorizontalAlignment="Left" Margin="75,171,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="CheckEveryTextBox" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="141,137,0,0" TextWrapping="Wrap" Text="3" VerticalAlignment="Top" Width="53"/>
+        <TextBox x:Name="LogEveryTextBox" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="141,174,0,0" TextWrapping="Wrap" Text="6" VerticalAlignment="Top" Width="53"/>
+        <Label Content="results" HorizontalAlignment="Left" Margin="198,171,0,0" VerticalAlignment="Top"/>
+        <Label Content="seconds" HorizontalAlignment="Left" Margin="198,134,0,0" VerticalAlignment="Top"/>
+
     </Grid>
 </Window>
