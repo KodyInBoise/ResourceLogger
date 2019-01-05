@@ -108,9 +108,9 @@ namespace ResourceLogger
 
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    _logPath = Path.Combine(dialog.SelectedPath, $"{ProcessesComboBox.Text}_CPU.txt");
+                    AppSettings.Instance.OutputDir = dialog.SelectedPath;
 
-                    LogPathTextBox.Text = _logPath;
+                    LogPathTextBox.Text = Path.Combine(AppSettings.Instance.OutputDir, $"{ProcessesComboBox.Text}.txt");
                 }
             }
         }

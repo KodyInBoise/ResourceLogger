@@ -12,6 +12,7 @@ namespace ResourceLogger
         public static AppSettings Instance { get; set; }
 
         public string OutputDir { get; set; }
+        public bool MinimizeWhenActive { get; set; }
 
 
         public static void Initialize()
@@ -23,7 +24,8 @@ namespace ResourceLogger
         {
             return new AppSettings()
             {
-                OutputDir = DataUtil.OutputDirectory
+                OutputDir = DataUtil.OutputDirectory,
+                MinimizeWhenActive = true,
             };
         }
     }

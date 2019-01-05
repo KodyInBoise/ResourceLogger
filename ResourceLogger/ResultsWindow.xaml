@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ResourceLogger"
         mc:Ignorable="d"
-        Title="ResultsWindow" Height="564.444" Width="747.778">
+        Title="ResultsWindow" Height="564.444" Width="747.778" Closing="Window_Closing">
     <Window.Resources>
         <CollectionViewSource x:Key="GridItems" CollectionViewType="{x:Type ListCollectionView}"/>
     </Window.Resources>
@@ -18,6 +18,7 @@
                     <Label x:Name="LastResultLabel" Content="LastResult" HorizontalAlignment="Left" Margin="106,79,0,0" VerticalAlignment="Top" Width="452"/>
                     <Button x:Name="ToggleButton" Content="Start" HorizontalAlignment="Left" Margin="578,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
                     <Button x:Name="ShowLogButton" Content="Show Log" HorizontalAlignment="Left" Margin="26,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
+                    <CheckBox x:Name="MinimizeWhenActiveCheckBox" Content="When active, minimize instead of close" HorizontalAlignment="Left" Margin="106,110,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="LogTab" Header="TabItem">

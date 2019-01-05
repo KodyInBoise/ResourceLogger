@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -28,9 +29,11 @@ namespace ResourceLogger
 
             ToggleButton.Click += (s, e) => ToggleButton_Clicked();
             ShowLogButton.Click += (s, e) => ShowLogButton_Clicked();
+            MinimizeWhenActiveCheckBox.PreviewMouseLeftButtonUp += (s, e) => MinimizeWhenActive_Changed();
 
             ProcessNameLabel.Content = $"Process Name: {Profiler.ProcessName}";
             ProcessStartedLabel.Content = $"Started: {DateTime.Now.ToString()}";
+            MinimizeWhenActiveCheckBox.IsChecked = AppSettings.Instance.MinimizeWhenActive;
 
             Show();
 
@@ -81,6 +84,21 @@ namespace ResourceLogger
 
             ViewDataGrid.ItemsSource = GridItems;
             ViewDataGrid.Items.Refresh();
+        }
+
+        private void MinimizeWhenActive_Changed()
+        {
+            AppSettings.Instance.MinimizeWhenActive = !MinimizeWhenActiveCheckBox.IsChecked == true ? true : false;
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (AppSettings.Instance.MinimizeWhenActive)
+            {
+                e.Cancel = true;
+
+                this.WindowState = WindowState.Minimized;
+            }
         }
     }
 
