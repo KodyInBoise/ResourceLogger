@@ -23,46 +23,71 @@ namespace ResourceLogger
         string _logPath { get; set; }
 
         int _logInt { get; set; }
-        int _logCounter { get; set; }
         int _checkInt { get; set; }
 
-        double _lastValue { get; set; }
-
-        PerformanceCounter _counter { get; set; }
-        CancellationTokenSource _token { get; set; }
-
-        List<string> _entries { get; set; }
-        object _entriesLock { get; set; }
-
-        bool _checking { get; set; }
+        List<ProcessWrapper> _processes { get; set; }
+        List<PerformanceHelper> _profilers { get; set; }
+        List<ResultsWindow> _resultWindows { get; set; }
 
 
         public MainWindow()
         {
             InitializeComponent();
 
-            ProcessesRefreshButton.Click += ProcessesRefreshButton_Click;
             LogPathBrowseButton.Click += LogPathBrowseButton_Click;
+            ProcessesComboBox.DropDownClosed += (s, e) => ProcessesComboBox_SelectionChanged();
+            ProcessesRefreshButton.Click += (s, e) => RefreshProcesses();
+            StartButton.Click += (s, e) => StartNewProfiler();
+
+            _processes = new List<ProcessWrapper>();
+            _profilers = new List<PerformanceHelper>();
+            _resultWindows = new List<ResultsWindow>();
 
             RefreshProcesses();
         }
 
+        int _lastSelectedID = -1;
         private void RefreshProcesses()
         {
-            ProcessesRefreshButton_Click(null, null);
+            _processes = new List<ProcessWrapper>();
 
-            ProcessesComboBox.SelectedIndex = 0;
-        }
-
-        private void ProcessesRefreshButton_Click(object sender, RoutedEventArgs e)
-        {
             var procs = Process.GetProcesses().OrderBy(x => x.ProcessName).ToList();
-
-            ProcessesComboBox.Items.Clear();
             procs.ForEach(x =>
             {
-                ProcessesComboBox.Items.Add(x.ProcessName);
+                var wrapper = new ProcessWrapper(x);
+                _processes.Add(wrapper);
             });
+
+            ProcessesComboBox.Items.Clear();
+
+            _processes.ForEach(x =>
+            {
+                ProcessesComboBox.Items.Add(x);
+            });
+
+            SetProcessesComboBox();
+        }
+
+        private void ProcessesComboBox_SelectionChanged()
+        {
+            var item = (ProcessWrapper)ProcessesComboBox.SelectedItem;
+            _lastSelectedID = item.ID;
+        }
+
+        private void SetProcessesComboBox()
+        {
+            if (_lastSelectedID > 0)
+            {
+                var item = _processes.Find(x => x.ID == _lastSelectedID);
+                if (item != null)
+                {
+                    ProcessesComboBox.SelectedItem = item;
+                }
+            }
+            else
+            {
+                ProcessesComboBox.SelectedItem = _processes[0];
+            }
         }
 
         private void LogPathBrowseButton_Click(object sender, RoutedEventArgs e)
@@ -73,124 +98,38 @@ namespace ResourceLogger
 
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    _logPath = Path.Combine(dialog.SelectedPath, $"{GetSelectedProcessName()}_CPU.txt");
+                    _logPath = Path.Combine(dialog.SelectedPath, $"{ProcessesComboBox.Text}_CPU.txt");
 
                     LogPathTextBox.Text = _logPath;
                 }
             }
         }
 
-        private string GetSelectedProcessName()
+        private ProcessWrapper GetSelectedProcess()
         {
-            return _processName = ProcessesComboBox.Text;
+            return (ProcessWrapper)ProcessesComboBox.SelectedItem;
         }
 
-        private void StartChecking(object sender, RoutedEventArgs e)
-        {
-            _processName = ProcessesComboBox.Text;
-            _logInt = Convert.ToInt32(LogEveryTextBox.Text);
-            _checkInt = Convert.ToInt32(CheckEveryTextBox.Text);
-            _token = new CancellationTokenSource();
-
-            _entriesLock = new object();
-            _entries = new List<string>();
-
-            Task.Run(() => CheckTask(_token));
-
-            ProcessNameLabel.Content = $"Process: {_processName}";
-            ProcessStartedLabel.Content = $"Started {DateTime.Now.ToString()}";
-            LastResultLabel.Content = $"Last Result: {DateTime.Now.ToString()} | Starting...";
-            TabController.SelectedItem = ProcessTab;
-        }
-
-        private void StopChecking()
-        {
-            _token.Cancel();
-            _checking = false;
-        }
-
-        private async Task CheckTask(CancellationTokenSource token)
+        private void StartNewProfiler()
         {
             try
             {
-                _checking = true;
-
-                _counter = new PerformanceCounter("Process", "% Processor Time", _processName);
-                _counter.NextValue();
-
-                while (!token.IsCancellationRequested)
+                var profiler = new PerformanceHelper(ResourceType.CPU, GetSelectedProcess())
                 {
-                    var value = _counter.NextValue();
+                    LogInterval = Convert.ToInt32(LogEveryTextBox.Text), 
+                    CheckInterval = Convert.ToInt32(CheckEveryTextBox.Text),
+                    LogPath = LogPathTextBox.Text
+                };
 
-                    await AddResult(value);
+                var window = new ResultsWindow(profiler);
 
-                    Thread.Sleep(TimeSpan.FromSeconds(_checkInt));
-                }
+                _profilers.Add(profiler);
+                _resultWindows.Add(window);
             }
             catch (Exception ex)
             {
-                throw ex;
+                MessageBox.Show($"Failed to start new profiler: {ex.Message}");
             }
-        }
-
-        private async Task AddResult(float result)
-        {
-            var value = Math.Round(result, 2);
-
-            lock(_entriesLock)
-            {
-                _entries.Add($"{DateTime.Now.ToString()} | {_processName}: {value}%");
-            }
-
-            _logCounter++;
-
-            if (_logCounter >= _logInt)
-            {
-                await WriteResults();
-            }
-
-            _lastValue = value;
-
-            Task.Run(UpdateLastResult);
-        }
-
-        private async Task AddException(Exception ex)
-        {
-            lock(_entriesLock)
-            {
-                _entries.Add($"{DateTime.Now.ToString()} | Exception Occurred: {ex.Message}");
-            }
-
-            await WriteResults();
-        }
-
-        private async Task WriteResults()
-        {
-            lock (_entriesLock)
-            {
-                File.AppendAllLines(_logPath, _entries.ToArray());
-
-                _entries.Clear();
-                _logCounter = 0;
-            }
-        }
-
-        private void ShowException(Exception ex)
-        {
-            MessageBox.Show($"Exception Occurred: {ex.Message}");
-        }
-
-        private async Task InvokeOnUI(Action action)
-        {
-            Application.Current.Dispatcher.Invoke(action);
-        }
-
-        private async Task UpdateLastResult()
-        {
-            await InvokeOnUI(() =>
-            {
-                LastResultLabel.Content = $"{DateTime.Now.ToString()} | {_lastValue}%";
-            });
         }
     }
 }
