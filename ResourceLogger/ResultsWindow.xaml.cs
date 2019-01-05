@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,6 +14,7 @@ namespace ResourceLogger
     public partial class ResultsWindow : Window
     {
         public PerformanceHelper Profiler { get; set; }
+        public IEnumerable<LogEntryModel> GridItems { get; set; }
 
         CancellationTokenSource _cancelToken { get; set; }
 
@@ -24,6 +27,7 @@ namespace ResourceLogger
             profiler.NewResultsEvent += UpdateLastResult;
 
             ToggleButton.Click += (s, e) => ToggleButton_Clicked();
+            ShowLogButton.Click += (s, e) => ShowLogButton_Clicked();
 
             ProcessNameLabel.Content = $"Process Name: {Profiler.ProcessName}";
             ProcessStartedLabel.Content = $"Started: {DateTime.Now.ToString()}";
@@ -67,5 +71,24 @@ namespace ResourceLogger
             ToggleButton.Content = Profiler.IsActive ? "Stop" : "Start";
             ToggleButton.Visibility = Visibility.Visible;
         }
+
+        private async void ShowLogButton_Clicked()
+        {
+            TabController.SelectedItem = LogTab;
+
+            var results = await Profiler.ReadAllResults();
+            GridItems = await DataUtil.ParseLogEntries(results);
+
+            ViewDataGrid.ItemsSource = GridItems;
+            ViewDataGrid.Items.Refresh();
+        }
+    }
+
+
+    public class LogEntryModel
+    {
+        public DateTime Timestamp { get; set; }
+        public string Message { get; set; }
+        public string Value { get; set; }
     }
 }

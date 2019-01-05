@@ -6,19 +6,30 @@
         xmlns:local="clr-namespace:ResourceLogger"
         mc:Ignorable="d"
         Title="ResultsWindow" Height="564.444" Width="747.778">
+    <Window.Resources>
+        <CollectionViewSource x:Key="GridItems" CollectionViewType="{x:Type ListCollectionView}"/>
+    </Window.Resources>
     <Grid>
-        <TabControl HorizontalAlignment="Left" Height="533" VerticalAlignment="Top" Width="740">
+        <TabControl x:Name="TabController" HorizontalAlignment="Left" Height="533" VerticalAlignment="Top" Width="740">
             <TabItem Header="TabItem">
                 <Grid Background="#FFE5E5E5">
                     <Label x:Name="ProcessNameLabel" Content="Process Name" HorizontalAlignment="Left" Margin="106,27,0,0" VerticalAlignment="Top" Width="452"/>
                     <Label x:Name="ProcessStartedLabel" Content="Started" HorizontalAlignment="Left" Margin="106,53,0,0" VerticalAlignment="Top" Width="452"/>
                     <Label x:Name="LastResultLabel" Content="LastResult" HorizontalAlignment="Left" Margin="106,79,0,0" VerticalAlignment="Top" Width="452"/>
                     <Button x:Name="ToggleButton" Content="Start" HorizontalAlignment="Left" Margin="578,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
-                    <Button x:Name="OpenLogButton" Content="Open Log" HorizontalAlignment="Left" Margin="26,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
+                    <Button x:Name="ShowLogButton" Content="Show Log" HorizontalAlignment="Left" Margin="26,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="TabItem">
-                <Grid Background="#FFE5E5E5"/>
+            <TabItem x:Name="LogTab" Header="TabItem">
+                <Grid Background="#FFE5E5E5">
+                    <DataGrid x:Name="ViewDataGrid"  HorizontalAlignment="Left" Height="505" Width="735" DataContext="{StaticResource GridItems}" ItemsSource="{Binding}" AutoGenerateColumns="False" FontFamily="Verdana" FontSize="14">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="175" Header="Timestamp" Binding="{Binding Timestamp}"/>
+                            <DataGridTextColumn Width="80" Header="Value" Binding="{Binding Value}"/>
+                            <DataGridTextColumn Width="480" Header="Message" Binding="{Binding Message}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

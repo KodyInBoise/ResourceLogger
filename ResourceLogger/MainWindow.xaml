@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ResourceLogger"
         mc:Ignorable="d"
-        Title="MainWindow" Height="270" Width="587.778">
+        Title="MainWindow" Height="270" Width="587.778" Closing="Window_Closing">
     <Grid>
         <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Left" Margin="403,151,0,0" VerticalAlignment="Top" Width="128" Height="49"/>
-        <ComboBox x:Name="ProcessesComboBox" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="58,38,0,0" VerticalAlignment="Top" Width="340"/>
-        <Button x:Name="ProcessesRefreshButton" Content="Refresh" HorizontalAlignment="Left" Margin="403,38,0,0" VerticalAlignment="Top" Width="75" Height="22"/>
-        <TextBox x:Name="LogPathTextBox" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="58,81,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="340"/>
-        <Button x:Name="LogPathBrowseButton" Content="Browse" HorizontalAlignment="Left" Margin="403,80,0,0" VerticalAlignment="Top" Width="75" Height="24"/>
+        <ComboBox x:Name="ProcessesComboBox" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="20,38,0,0" VerticalAlignment="Top" Width="431"/>
+        <Button x:Name="ProcessesRefreshButton" Content="Refresh" HorizontalAlignment="Left" Margin="468,38,0,0" VerticalAlignment="Top" Width="75" Height="22"/>
+        <TextBox x:Name="LogPathTextBox" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="20,81,0,0" Text="" VerticalAlignment="Top" Width="431"/>
+        <Button x:Name="LogPathBrowseButton" Content="Browse" HorizontalAlignment="Left" Margin="468,80,0,0" VerticalAlignment="Top" Width="75" Height="24"/>
         <Label Content="Check Every" HorizontalAlignment="Left" Margin="45,132,0,0" VerticalAlignment="Top"/>
         <Label Content="Log Every" HorizontalAlignment="Left" Margin="57,169,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="CheckEveryTextBox" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="123,135,0,0" TextWrapping="Wrap" Text="3" VerticalAlignment="Top" Width="53"/>

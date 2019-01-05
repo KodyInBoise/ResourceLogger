@@ -177,5 +177,18 @@ namespace ResourceLogger
                 _logCounter = 0;
             }
         }
+
+        public async Task<IEnumerable<string>> ReadAllResults()
+        {
+            lock (_entriesLock)
+            {
+                if (File.Exists(LogPath))
+                {
+                    return File.ReadAllLines(LogPath);
+                }
+
+                return _entries.ToList();
+            }
+        }
     }
 }

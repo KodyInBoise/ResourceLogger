@@ -34,6 +34,9 @@ namespace ResourceLogger
         {
             InitializeComponent();
 
+            DataUtil.Initialize();
+            AppSettings.Initialize();
+
             LogPathBrowseButton.Click += LogPathBrowseButton_Click;
             ProcessesComboBox.DropDownClosed += (s, e) => ProcessesComboBox_SelectionChanged();
             ProcessesRefreshButton.Click += (s, e) => RefreshProcesses();
@@ -44,6 +47,8 @@ namespace ResourceLogger
             _resultWindows = new List<ResultsWindow>();
 
             RefreshProcesses();
+
+            ProcessesComboBox_SelectionChanged();
         }
 
         int _lastSelectedID = -1;
@@ -72,6 +77,11 @@ namespace ResourceLogger
         {
             var item = (ProcessWrapper)ProcessesComboBox.SelectedItem;
             _lastSelectedID = item.ID;
+
+            LogPathTextBox.Text = Path.Combine(AppSettings.Instance.OutputDir, $"{item.Name}.txt");
+
+            LogPathTextBox.Focus();
+            LogPathTextBox.ScrollToEnd();
         }
 
         private void SetProcessesComboBox()
@@ -130,6 +140,11 @@ namespace ResourceLogger
             {
                 MessageBox.Show($"Failed to start new profiler: {ex.Message}");
             }
+        }
+
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            await Task.Run(() => DataUtil.Instance.SaveSettings());
         }
     }
 }
