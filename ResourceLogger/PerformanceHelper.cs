@@ -16,6 +16,7 @@ namespace ResourceLogger
     }
 
     public delegate void NewResultsReceivedEvent(NewResultsArgs args);
+    public delegate void HighestResultReceivedEvent(NewResultsArgs args);
 
     public class NewResultsArgs
     {
@@ -57,6 +58,7 @@ namespace ResourceLogger
         public ResourceType Type { get; set; }
 
         public NewResultsReceivedEvent NewResultsEvent;
+        public HighestResultReceivedEvent HighestResultsEvent;
 
         public string LogPath { get; set; }
         public string ProcessName => _process.Name;
@@ -69,12 +71,13 @@ namespace ResourceLogger
         public bool IsActive { get; set; }
 
         ProcessWrapper _process { get; set; }
-        PerformanceCounter _counter { get; set; }
+        PerformanceCounter _cpuCounter { get; set; }
         CancellationTokenSource _token { get; set; }
 
         List<string> _entries { get; set; }
         object _entriesLock { get; set; }
         int _logCounter { get; set; }
+        double _maxValue { get; set; }
 
 
         public PerformanceHelper(ResourceType type, ProcessWrapper proc)
@@ -89,7 +92,7 @@ namespace ResourceLogger
             switch (type)
             {
                 case ResourceType.CPU:
-                    _counter = new PerformanceCounter("Process", "% Processor Time", _process.Name);
+                    _cpuCounter = new PerformanceCounter("Process", "% Processor Time", _process.Name);
                     break;
                 default:
                     break;
@@ -116,13 +119,14 @@ namespace ResourceLogger
         {
             try
             {
-                _counter.NextValue();
+                _cpuCounter.NextValue();
 
                 while (!token.IsCancellationRequested)
                 {
-                    var value = _counter.NextValue();
+                    var value = _cpuCounter.NextValue() / Environment.ProcessorCount;
 
                     await AddResult(value);
+                    Task.Run(() => CompareHighest(value));
 
                     // Invoke delegate for UI updates
                     NewResultsEvent?.Invoke(new NewResultsArgs(_process.Name, value));
@@ -188,6 +192,16 @@ namespace ResourceLogger
                 }
 
                 return _entries.ToList();
+            }
+        }
+
+        public async Task CompareHighest(float value)
+        {
+            if (value > _maxValue)
+            {
+                _maxValue = value;
+
+                HighestResultsEvent?.Invoke(new NewResultsArgs(ProcessName, value));
             }
         }
     }

@@ -13,6 +13,7 @@ namespace ResourceLogger
 
         public string OutputDir { get; set; }
         public bool MinimizeWhenActive { get; set; }
+        public string LastSelectedProcess { get; set; }
 
 
         public static void Initialize()
@@ -26,6 +27,7 @@ namespace ResourceLogger
             {
                 OutputDir = DataUtil.OutputDirectory,
                 MinimizeWhenActive = true,
+                LastSelectedProcess = ""
             };
         }
     }

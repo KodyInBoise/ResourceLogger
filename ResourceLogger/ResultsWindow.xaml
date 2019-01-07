@@ -18,7 +18,8 @@
                     <Label x:Name="LastResultLabel" Content="LastResult" HorizontalAlignment="Left" Margin="106,79,0,0" VerticalAlignment="Top" Width="452"/>
                     <Button x:Name="ToggleButton" Content="Start" HorizontalAlignment="Left" Margin="578,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
                     <Button x:Name="ShowLogButton" Content="Show Log" HorizontalAlignment="Left" Margin="26,434,0,0" VerticalAlignment="Top" Width="132" Height="47"/>
-                    <CheckBox x:Name="MinimizeWhenActiveCheckBox" Content="When active, minimize instead of close" HorizontalAlignment="Left" Margin="106,110,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="MinimizeWhenActiveCheckBox" Content="When active, minimize instead of close" HorizontalAlignment="Left" Margin="106,136,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="HighestResultLabel" Content="Highest Result" HorizontalAlignment="Left" Margin="106,105,0,0" VerticalAlignment="Top" Width="452"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="LogTab" Header="TabItem">

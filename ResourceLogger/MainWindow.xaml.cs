@@ -48,7 +48,15 @@ namespace ResourceLogger
 
             RefreshProcesses();
 
-            ProcessesComboBox_SelectionChanged();
+            if (!string.IsNullOrEmpty(AppSettings.Instance.LastSelectedProcess))
+            {
+                var match = _processes.Find(x => x.Name == AppSettings.Instance.LastSelectedProcess);
+
+                if (match != null)
+                {
+                    ProcessesComboBox.SelectedItem = match;
+                }
+            }
         }
 
         int _lastSelectedID = -1;
@@ -71,6 +79,8 @@ namespace ResourceLogger
             });
 
             SetProcessesComboBox();
+
+            ProcessesComboBox_SelectionChanged();
         }
 
         private void ProcessesComboBox_SelectionChanged()
@@ -82,6 +92,8 @@ namespace ResourceLogger
 
             LogPathTextBox.Focus();
             LogPathTextBox.ScrollToEnd();
+
+            AppSettings.Instance.LastSelectedProcess = item.Name;
         }
 
         private void SetProcessesComboBox()

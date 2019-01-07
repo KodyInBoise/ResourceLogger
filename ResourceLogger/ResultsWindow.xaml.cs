@@ -26,6 +26,7 @@ namespace ResourceLogger
 
             Profiler = profiler;
             profiler.NewResultsEvent += UpdateLastResult;
+            profiler.HighestResultsEvent += UpdateHighestResult;
 
             ToggleButton.Click += (s, e) => ToggleButton_Clicked();
             ShowLogButton.Click += (s, e) => ShowLogButton_Clicked();
@@ -50,6 +51,18 @@ namespace ResourceLogger
             Task.Run(() => InvokeOnUI(() =>
             {
                 LastResultLabel.Content = $"Last Result: {args.Message}";               
+            }), _cancelToken.Token);
+        }
+
+        private void UpdateHighestResult(NewResultsArgs args)
+        {
+            _cancelToken?.Cancel();
+
+            _cancelToken = new CancellationTokenSource();
+
+            Task.Run(() => InvokeOnUI(() =>
+            {
+                HighestResultLabel.Content = $"Max Result: {args.Message}";
             }), _cancelToken.Token);
         }
 
@@ -93,7 +106,7 @@ namespace ResourceLogger
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            if (AppSettings.Instance.MinimizeWhenActive)
+            if (AppSettings.Instance.MinimizeWhenActive && Profiler.IsActive)
             {
                 e.Cancel = true;
 
