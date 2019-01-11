@@ -11,6 +11,8 @@ namespace ResourceLogger
     {
         public int ID { get; set; }
         public string Name { get; set; }
+        public bool IsService { get; set; }
+
         public bool IsActive => GetIsProcessActive();
 
 
@@ -18,6 +20,7 @@ namespace ResourceLogger
         {
             ID = proc.Id;
             Name = proc.ProcessName;
+            IsService = proc.SessionId == 0;
         }
 
         bool GetIsProcessActive()
@@ -33,7 +36,13 @@ namespace ResourceLogger
 
         public override string ToString()
         {
-            return Name;
+            var display = Name;
+            if (IsService)
+            {
+                display = $"{Name} (Service)";
+            }
+            
+            return display;
         }
     }
 }
