@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace ResourceLogger
 {
@@ -123,13 +124,16 @@ namespace ResourceLogger
 
                 while (!token.IsCancellationRequested)
                 {
-                    var value = _cpuCounter.NextValue() / Environment.ProcessorCount;
+                    var cpu = _cpuCounter.NextValue() / Environment.ProcessorCount;
+                    var memory = _process.GetWorkingSet();
 
-                    await AddResult(value);
-                    Task.Run(() => CompareHighest(value));
+                    var result = new ResultModel(cpu, memory);
+
+                    await AddResult(cpu);
+                    Task.Run(() => CompareHighest(cpu));
 
                     // Invoke delegate for UI updates
-                    NewResultsEvent?.Invoke(new NewResultsArgs(_process.Name, value));
+                    NewResultsEvent?.Invoke(new NewResultsArgs(_process.Name, cpu));
 
                     Thread.Sleep(TimeSpan.FromSeconds(CheckInterval));
                 }

@@ -23,6 +23,13 @@ namespace ResourceLogger
             IsService = proc.SessionId == 0;
         }
 
+        public long GetWorkingSet()
+        {
+            var process = Process.GetProcessById(ID);
+
+            return process?.WorkingSet64 ?? 0;
+        }
+
         bool GetIsProcessActive()
         {
             var proc = Process.GetProcessById(ID);
